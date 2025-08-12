@@ -3,151 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Love You Animation</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mojs/core"></script>
+    <title>LOVE EXPLOSION ❤️🔥</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f8f8f8;
             font-family: 'Arial', sans-serif;
-            overflow: hidden;
         }
-        
-        .love-container {
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .container {
             position: relative;
+            z-index: 2;
             text-align: center;
         }
-        
-        .love-letter {
-            position: absolute;
-            font-size: 80px;
-            font-weight: bold;
-            opacity: 0;
-            color: #ff4081;
+
+        .heart {
+            font-size: 150px;
+            color: #ff0055;
+            text-shadow: 
+                0 0 20px #ff0055,
+                0 0 40px #ff0055,
+                0 0 80px #ff0055;
+            animation: heartbeat 1s infinite alternate;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
-        
-        #i { left: -150px; }
-        #l { left: -50px; }
-        #o { left: 50px; }
-        #v { left: 150px; }
-        #e { left: 250px; }
-        #y { left: -100px; top: 100px; }
-        #o2 { left: 0; top: 100px; }
-        #u { left: 100px; top: 100px; }
+
+        .heart:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartbeat {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .message {
+            margin-top: 30px;
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                0 0 10px #fff,
+                0 0 20px #ff0055,
+                0 0 40px #ff0055;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .fire {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255,100,50,0.8) 0%, rgba(255,50,0,0) 70%);
+            border-radius: 50%;
+            filter: blur(5px);
+            pointer-events: none;
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
-    <div class="love-container">
-        <div class="love-letter" id="i">I</div>
-        <div class="love-letter" id="l">L</div>
-        <div class="love-letter" id="o">O</div>
-        <div class="love-letter" id="v">V</div>
-        <div class="love-letter" id="e">E</div>
-        <div class="love-letter" id="y">Y</div>
-        <div class="love-letter" id="o2">O</div>
-        <div class="love-letter" id="u">U</div>
+    <canvas id="canvas"></canvas>
+    
+    <div class="container">
+        <div class="heart" id="heart">❤️</div>
+        <div class="message" id="message">I LOVE YOU</div>
     </div>
 
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos das letras
-            const el = {
-                i: document.getElementById('i'),
-                l: document.getElementById('l'),
-                o: document.getElementById('o'),
-                v: document.getElementById('v'),
-                e: document.getElementById('e'),
-                y: document.getElementById('y'),
-                o2: document.getElementById('o2'),
-                u: document.getElementById('u')
-            };
-            
-            // Efeito "blop" (bolha) que será disparado no final
-            const blop = new mojs.Burst({
-                radius: { 0: 100 },
-                count: 5,
-                children: {
-                    shape: 'circle',
-                    fill: ['#ff4081', '#ff8a80', '#ff80ab', '#ea80fc', '#b388ff'],
-                    radius: { 10: 0 },
-                    duration: 2000,
-                    easing: 'sin.out'
-                }
-            });
-            
-            // Configurações da animação
-            const move = 1000;
-            const boom = 200;
-            const easing = "sin.inOut";
-            const easingBoom = "sin.in";
-            const easingOut = "sin.out";
-            const opts = { duration: move, easing, opacity: 1 };
-            const delta = 150;
-            
-            // Animação principal
-            const animation = new mojs.Timeline()
-                .add([
-                    // Animação para "I LOVE"
-                    new mojs.Tween({
-                        duration: move,
-                        onUpdate: (progress) => {
-                            const letters = ['i', 'l', 'o', 'v', 'e'];
-                            letters.forEach((letter, index) => {
-                                const delay = index * delta;
-                                if (progress > delay / move) {
-                                    const letterProgress = (progress - delay / move) * (move / (move - delay));
-                                    el[letter].style.opacity = letterProgress;
-                                    el[letter].style.transform = `translateY(${(1 - letterProgress) * -50}px)`;
-                                }
-                            });
-                        }
-                    }),
-                    
-                    // Animação para "YOU" (começa um pouco depois)
-                    new mojs.Tween({
-                        delay: delta * 3,
-                        duration: move,
-                        onUpdate: (progress) => {
-                            const letters = ['y', 'o2', 'u'];
-                            letters.forEach((letter, index) => {
-                                const delay = index * delta;
-                                if (progress > delay / move) {
-                                    const letterProgress = (progress - delay / move) * (move / (move - delay));
-                                    el[letter].style.opacity = letterProgress;
-                                    el[letter].style.transform = `translateY(${(1 - letterProgress) * -50}px)`;
-                                }
-                            });
-                        },
-                        onComplete: () => {
-                            // Ao completar, faz as letras piscarem e dispara o efeito blop
-                            ['i', 'l', 'o', 'v', 'e', 'y', 'o2', 'u'].forEach(letter => {
-                                el[letter].style.opacity = 0;
-                            });
-                            blop.replay();
-                            
-                            // Depois de um tempo, reinicia a animação
-                            setTimeout(() => {
-                                ['i', 'l', 'o', 'v', 'e', 'y', 'o2', 'u'].forEach(letter => {
-                                    el[letter].style.opacity = 0;
-                                    el[letter].style.transform = 'translateY(0)';
-                                });
-                                setTimeout(() => animation.replay(), 500);
-                            }, 2000);
-                        }
-                    })
-                ]);
-            
-            // Inicia a animação
-            animation.play();
-            
-            // Configura evento de clique para reiniciar a animação
-            document.body.addEventListener('click', function() {
-                animation.replay();
-            });
+        // ====== PARTÍCULAS 3D NO FUNDO ======
+        const canvas = document.getElementById('canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particleCount = 2000;
+
+        const posArray = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 100;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            color: 0xff0055,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
         });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            particlesMesh.rotation.x += 0.0005;
+            particlesMesh.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+        animateParticles();
+
+        // ====== ANIMAÇÃO DO CORAÇÃO E TEXTO ======
+        const heart = document.getElementById('heart');
+        const message = document.getElementById('message');
+        const bgMusic = document.getElementById('bgMusic');
+
+        // Toca música (se permitido)
+        document.addEventListener('click', () => {
+            bgMusic.play().catch(e => console.log("Autoplay bloqueado"));
+        });
+
+        // Efeito de explosão ao clicar
+        heart.addEventListener('click', () => {
+            // Animação GSAP para o texto
+            gsap.to(message, {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "elastic.out(1, 0.5)"
+            });
+
+            // Cria faíscas
+            for (let i = 0; i < 30; i++) {
+                createFireParticle();
+            }
+        });
+
+        // Cria partículas de fogo
+        function createFireParticle() {
+            const fire = document.createElement('div');
+            fire.className = 'fire';
+            document.body.appendChild(fire);
+
+            // Posição aleatória perto do coração
+            const x = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+            const y = window.innerHeight / 2 + (Math.random() - 0.5) * 200;
+            
+            fire.style.left = `${x}px`;
+            fire.style.top = `${y}px`;
+            fire.style.opacity = '1';
+
+            // Animação com GSAP
+            gsap.to(fire, {
+                x: (Math.random() - 0.5) * 400,
+                y: (Math.random() - 0.5) * 400,
+                opacity: 0,
+                scale: 0,
+                duration: 1.5,
+                onComplete: () => fire.remove()
+            });
+        }
+
+        // Mostra a mensagem automaticamente após 1s
+        setTimeout(() => {
+            heart.click();
+        }, 1000);
     </script>
 </body>
 </html>
