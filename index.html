@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Love You Animation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mojs/core"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f8f8;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        .love-container {
+            position: relative;
+            text-align: center;
+        }
+        
+        .love-letter {
+            position: absolute;
+            font-size: 80px;
+            font-weight: bold;
+            opacity: 0;
+            color: #ff4081;
+        }
+        
+        #i { left: -150px; }
+        #l { left: -50px; }
+        #o { left: 50px; }
+        #v { left: 150px; }
+        #e { left: 250px; }
+        #y { left: -100px; top: 100px; }
+        #o2 { left: 0; top: 100px; }
+        #u { left: 100px; top: 100px; }
+    </style>
+</head>
+<body>
+    <div class="love-container">
+        <div class="love-letter" id="i">I</div>
+        <div class="love-letter" id="l">L</div>
+        <div class="love-letter" id="o">O</div>
+        <div class="love-letter" id="v">V</div>
+        <div class="love-letter" id="e">E</div>
+        <div class="love-letter" id="y">Y</div>
+        <div class="love-letter" id="o2">O</div>
+        <div class="love-letter" id="u">U</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos das letras
+            const el = {
+                i: document.getElementById('i'),
+                l: document.getElementById('l'),
+                o: document.getElementById('o'),
+                v: document.getElementById('v'),
+                e: document.getElementById('e'),
+                y: document.getElementById('y'),
+                o2: document.getElementById('o2'),
+                u: document.getElementById('u')
+            };
+            
+            // Efeito "blop" (bolha) que será disparado no final
+            const blop = new mojs.Burst({
+                radius: { 0: 100 },
+                count: 5,
+                children: {
+                    shape: 'circle',
+                    fill: ['#ff4081', '#ff8a80', '#ff80ab', '#ea80fc', '#b388ff'],
+                    radius: { 10: 0 },
+                    duration: 2000,
+                    easing: 'sin.out'
+                }
+            });
+            
+            // Configurações da animação
+            const move = 1000;
+            const boom = 200;
+            const easing = "sin.inOut";
+            const easingBoom = "sin.in";
+            const easingOut = "sin.out";
+            const opts = { duration: move, easing, opacity: 1 };
+            const delta = 150;
+            
+            // Animação principal
+            const animation = new mojs.Timeline()
+                .add([
+                    // Animação para "I LOVE"
+                    new mojs.Tween({
+                        duration: move,
+                        onUpdate: (progress) => {
+                            const letters = ['i', 'l', 'o', 'v', 'e'];
+                            letters.forEach((letter, index) => {
+                                const delay = index * delta;
+                                if (progress > delay / move) {
+                                    const letterProgress = (progress - delay / move) * (move / (move - delay));
+                                    el[letter].style.opacity = letterProgress;
+                                    el[letter].style.transform = `translateY(${(1 - letterProgress) * -50}px)`;
+                                }
+                            });
+                        }
+                    }),
+                    
+                    // Animação para "YOU" (começa um pouco depois)
+                    new mojs.Tween({
+                        delay: delta * 3,
+                        duration: move,
+                        onUpdate: (progress) => {
+                            const letters = ['y', 'o2', 'u'];
+                            letters.forEach((letter, index) => {
+                                const delay = index * delta;
+                                if (progress > delay / move) {
+                                    const letterProgress = (progress - delay / move) * (move / (move - delay));
+                                    el[letter].style.opacity = letterProgress;
+                                    el[letter].style.transform = `translateY(${(1 - letterProgress) * -50}px)`;
+                                }
+                            });
+                        },
+                        onComplete: () => {
+                            // Ao completar, faz as letras piscarem e dispara o efeito blop
+                            ['i', 'l', 'o', 'v', 'e', 'y', 'o2', 'u'].forEach(letter => {
+                                el[letter].style.opacity = 0;
+                            });
+                            blop.replay();
+                            
+                            // Depois de um tempo, reinicia a animação
+                            setTimeout(() => {
+                                ['i', 'l', 'o', 'v', 'e', 'y', 'o2', 'u'].forEach(letter => {
+                                    el[letter].style.opacity = 0;
+                                    el[letter].style.transform = 'translateY(0)';
+                                });
+                                setTimeout(() => animation.replay(), 500);
+                            }, 2000);
+                        }
+                    })
+                ]);
+            
+            // Inicia a animação
+            animation.play();
+            
+            // Configura evento de clique para reiniciar a animação
+            document.body.addEventListener('click', function() {
+                animation.replay();
+            });
+        });
+    </script>
+</body>
+</html>
